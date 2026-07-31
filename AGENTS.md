@@ -8,6 +8,8 @@ Demo repo, not a product. See [README.md](README.md) for architecture, setup ins
 - OLSConfig has `introspectionEnabled: false` to disable the built-in MCP sidecar and use the standalone server instead.
 - `hostAliases` in MCP server Deployment for DNS resolution (shiftlet clusters use `/etc/hosts`, not DNS).
 - Demo scenario: [payments-api-failure](https://github.com/rhobs/troubleshooting-scenarios/tree/main/generic/01-payments-api-failure) from troubleshooting-scenarios repo.
+- **MCP server restart required after Secret changes**: the kubeconfig file watcher uses `fsnotify` which does not detect Kubernetes Secret volume updates (symlink swaps). Always restart the MCP server pod after register/deregister.
+- ServiceAccounts are created in the `default` namespace on target clusters (avoids creating `openshift-lightspeed` on spokes where OLS is not installed).
 
 ## Development
 

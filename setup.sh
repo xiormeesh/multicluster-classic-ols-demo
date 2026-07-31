@@ -21,13 +21,11 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 HUB_HOSTNAME="api.hub.shiftlet.local"
 HUB_IP="192.168.1.80"
 HUB_KUBECONFIG="/var/lib/shiftlet/hub/kubeconfig"
-HUB_API_SERVER="https://${HUB_HOSTNAME}:6443"
 
 # Spoke cluster
 SPOKE_HOSTNAME="api.spoke.shiftlet.local"
 SPOKE_IP="192.168.1.82"
 SPOKE_KUBECONFIG="$HOME/spoke-kubeconfig"
-SPOKE_API_SERVER="https://${SPOKE_HOSTNAME}:6443"
 
 # Demo scenario
 TROUBLESHOOTING_SCENARIOS_DIR="$HOME/src/troubleshooting-scenarios"
@@ -51,12 +49,37 @@ echo ""
 
 # --- Step 3: Register production cluster (hub) ---
 echo "--- Step 3: Register production cluster ---"
-echo "[TODO] ./ols-hub register cluster --name production --local"
+CLUSTERS_CHANGED=false
+rc=0; "$DIR/ols-hub.sh" register cluster --name production --kubeconfig "$HUB_KUBECONFIG" || rc=$?
+[[ $rc -eq 1 ]] && exit 1
+[[ $rc -eq 0 ]] && CLUSTERS_CHANGED=true
 echo ""
 
 # --- Step 4: Register staging cluster (spoke) ---
 echo "--- Step 4: Register staging cluster ---"
-echo "[TODO] ./ols-hub register cluster --name staging --kubeconfig $SPOKE_KUBECONFIG"
+rc=0; "$DIR/ols-hub.sh" register cluster --name staging --kubeconfig "$SPOKE_KUBECONFIG" || rc=$?
+[[ $rc -eq 1 ]] && exit 1
+[[ $rc -eq 0 ]] && CLUSTERS_CHANGED=true
+echo ""
+
+# --- Restart MCP server if clusters were registered ---
+if [[ "$CLUSTERS_CHANGED" == "true" ]]; then
+    # The MCP server's kubeconfig file watcher uses fsnotify which does not
+    # detect Kubernetes Secret volume updates (symlink swaps). A pod restart
+    # is needed to pick up changes to the mcp-kubeconfig Secret.
+    echo "--- Restarting MCP server to load registered clusters ---"
+    oc rollout restart deployment/openshift-mcp-server -n openshift-lightspeed
+    oc rollout status deployment/openshift-mcp-server -n openshift-lightspeed --timeout=120s
+    echo "  Registered clusters:"
+    for i in 1 2 3; do
+        oc get secret mcp-kubeconfig -n openshift-lightspeed -o jsonpath='{.data.kubeconfig}' \
+            | base64 -d | oc config --kubeconfig=/dev/stdin get-contexts -o name 2>/dev/null \
+            | sed 's/^/    - /' && break
+        sleep 3
+    done
+else
+    echo "--- No new clusters registered, skipping MCP server restart ---"
+fi
 echo ""
 
 # --- Step 5: Deploy payments scenario ---
