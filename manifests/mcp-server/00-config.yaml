@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mcp-config
+  namespace: openshift-lightspeed
+data:
+  config.toml: |
+    # OLS ships with core, config, helm, metrics. We use core + config here:
+    # helm is not needed for this demo, and metrics queries are not
+    # multicluster-aware (they always hit the hub's Thanos).
+    toolsets = ["core", "config"]
+    cluster_provider_strategy = "kubeconfig"
+    kubeconfig = "/etc/mcp/kubeconfig"
+    port = "8080"
+    read_only = true
+
+    [[denied_resources]]
+    group = ""
+    version = "v1"
+    kind = "Secret"
+
+    [[denied_resources]]
+    group = ""
+    version = "v1"
+    kind = "ConfigMap"
+
+    [[denied_resources]]
+    group = "rbac.authorization.k8s.io"
+    version = "v1"
+    kind = "Role"
+
+    [[denied_resources]]
+    group = "rbac.authorization.k8s.io"
+    version = "v1"
+    kind = "RoleBinding"
+
+    [[denied_resources]]
+    group = "rbac.authorization.k8s.io"
+    version = "v1"
+    kind = "ClusterRole"
+
+    [[denied_resources]]
+    group = "rbac.authorization.k8s.io"
+    version = "v1"
+    kind = "ClusterRoleBinding"

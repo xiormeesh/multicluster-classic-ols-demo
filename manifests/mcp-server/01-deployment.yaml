@@ -1,0 +1,55 @@
+# Standalone openshift-mcp-server with kubeconfig provider for multicluster support.
+#
+# hostAliases: required when cluster API hostnames are not in DNS (e.g. local
+# libvirt clusters). install.sh substitutes these from HOST_ALIASES env var.
+# Remove this block entirely if your clusters have proper DNS.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: openshift-mcp-server
+  namespace: openshift-lightspeed
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: openshift-mcp-server
+  template:
+    metadata:
+      labels:
+        app: openshift-mcp-server
+    spec:
+      hostAliases: []
+      containers:
+      - name: openshift-mcp-server
+        # Image digest from the OLS sidecar. To get the current digest:
+        # oc get pods -n openshift-lightspeed -o jsonpath='{range .items[*]}{range .spec.containers[*]}{.name}{"\t"}{.image}{"\n"}{end}{end}' | grep mcp
+        image: registry.redhat.io/openshift-lightspeed/openshift-mcp-server-rhel9@sha256:83f288c04aad9c742cf2cee51f45e1be1982e1fcc388d2112cf5483e381fff62
+        args:
+        - --config
+        - /etc/mcp-config/config.toml
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - name: mcp-kubeconfig
+          mountPath: /etc/mcp
+        - name: mcp-config
+          mountPath: /etc/mcp-config
+      volumes:
+      - name: mcp-kubeconfig
+        secret:
+          secretName: mcp-kubeconfig
+      - name: mcp-config
+        configMap:
+          name: mcp-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: openshift-mcp-server
+  namespace: openshift-lightspeed
+spec:
+  selector:
+    app: openshift-mcp-server
+  ports:
+  - port: 8080
+    targetPort: 8080
