@@ -41,4 +41,4 @@ echo "Waiting for app-server pod to be ready (up to 5 minutes)..."
 oc wait --for=condition=Available deployment/lightspeed-app-server \
     -n openshift-lightspeed --timeout=300s 2>/dev/null || true
 
-echo "Done. Verify: oc get pods -n $NS"
+echo "Done. Verify: oc get pods -n openshift-lightspeed"

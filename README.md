@@ -2,7 +2,7 @@
 
 Multicluster troubleshooting with OpenShift Lightspeed (classic, user-initiated chat). One hub cluster queries multiple spoke clusters via a standalone MCP server with the kubeconfig provider strategy.
 
-**Status**: work in progress — OLS install, MCP server deploy, and cluster registration working. Demo scenario (payments-api-failure) pending.
+**Status**: all setup steps working end-to-end. Demo recording pending.
 
 ## Prerequisites
 
@@ -10,6 +10,11 @@ Multicluster troubleshooting with OpenShift Lightspeed (classic, user-initiated 
 - `oc` CLI logged into the hub cluster
 - `OPENAI_API_KEY` set in your shell environment
 - Spoke cluster's kubeconfig copied to the hub host
+- A default StorageClass on both clusters (the payments scenario uses a PVC). For shiftlet SNOs:
+  ```bash
+  oc apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml
+  oc annotate storageclass local-path storageclass.kubernetes.io/is-default-class=true
+  ```
 
 ## Quick start
 
@@ -30,8 +35,8 @@ The script is idempotent — it detects already-completed steps and skips them.
 | 2 | Deploy standalone MCP server (kubeconfig provider) | Done |
 | 3 | Register hub as "production" cluster (`ols-hub.sh register cluster`) | Done |
 | 4 | Register spoke as "staging" cluster (`ols-hub.sh register cluster`) | Done |
-| 5 | Deploy payments-api-failure scenario on both clusters | TODO |
-| 6 | Break staging (roll reporting-service to buggy v1.0.2) | TODO |
+| 5 | Deploy payments-api-failure scenario on both clusters | Done |
+| 6 | Break staging (roll reporting-service to buggy v1.0.2) | Done |
 
 ## Repo structure
 
@@ -58,6 +63,11 @@ The script is idempotent — it detects already-completed steps and skips them.
 │       ├── 01-kubeconfig-cert.yaml.template  # Kubeconfig with cert auth (--no-sa)
 │       ├── register.sh
 │       └── deregister.sh
+├── scenarios/                    # Copied from rhobs/troubleshooting-scenarios (PVC → emptyDir)
+│   ├── 01-payments-api-failure/  # Connection leak scenario (used in this demo)
+│   ├── 02-alert-storm/
+│   ├── 03-image-pull-failure/
+│   └── 04-control-plane-alerts/
 └── README.md
 ```
 

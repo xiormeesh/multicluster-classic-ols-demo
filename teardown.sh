@@ -15,8 +15,21 @@ SPOKE_KUBECONFIG="$HOME/spoke-kubeconfig"
 echo "=== Multicluster Classic OLS Demo Teardown ==="
 echo ""
 
-# --- Step 6: Remove broken staging scenario ---
-echo "--- Removing demo scenario (TODO) ---"
+# --- Steps 6-5: Remove payments scenario from both clusters ---
+echo "--- Removing payments scenario from staging ---"
+if KUBECONFIG="$SPOKE_KUBECONFIG" oc get namespace payments -o name &>/dev/null; then
+    KUBECONFIG="$SPOKE_KUBECONFIG" make -C "$DIR/scenarios/01-payments-api-failure" cleanup 2>/dev/null || true
+else
+    echo "payments namespace not found on staging, skipping."
+fi
+echo ""
+
+echo "--- Removing payments scenario from production ---"
+if KUBECONFIG="$HUB_KUBECONFIG" oc get namespace payments -o name &>/dev/null; then
+    KUBECONFIG="$HUB_KUBECONFIG" make -C "$DIR/scenarios/01-payments-api-failure" cleanup 2>/dev/null || true
+else
+    echo "payments namespace not found on production, skipping."
+fi
 echo ""
 
 # --- Steps 4-3: Deregister clusters (reverse order) ---

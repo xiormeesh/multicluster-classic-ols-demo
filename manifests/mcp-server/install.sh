@@ -41,4 +41,4 @@ fi
 echo "Waiting for MCP server pod to be ready (up to 2 minutes)..."
 oc rollout status deployment/openshift-mcp-server -n openshift-lightspeed --timeout=120s
 
-echo "Done. Verify: oc get pods -n $NS -l app=openshift-mcp-server"
+echo "Done. Verify: oc get pods -n openshift-lightspeed -l app=openshift-mcp-server"

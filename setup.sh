@@ -27,8 +27,8 @@ SPOKE_HOSTNAME="api.spoke.shiftlet.local"
 SPOKE_IP="192.168.1.82"
 SPOKE_KUBECONFIG="$HOME/spoke-kubeconfig"
 
-# Demo scenario
-TROUBLESHOOTING_SCENARIOS_DIR="$HOME/src/troubleshooting-scenarios"
+# Demo scenarios (copied from rhobs/troubleshooting-scenarios, PVC replaced with emptyDir)
+SCENARIOS_DIR="$DIR/scenarios"
 
 # hostAliases for the MCP server pod (needed when cluster API hostnames
 # are not in DNS, e.g. local libvirt clusters).
@@ -36,6 +36,13 @@ export HOST_ALIASES="[{\"ip\":\"${HUB_IP}\",\"hostnames\":[\"${HUB_HOSTNAME}\"]}
 
 echo "=== Multicluster Classic OLS Demo Setup ==="
 echo ""
+
+# --- Prerequisite checks ---
+if ! oc get storageclass -o name 2>/dev/null | grep -q storageclass; then
+    echo "Error: no StorageClass found. The payments scenario requires a default StorageClass."
+    echo "See README.md for setup instructions."
+    exit 1
+fi
 
 # --- Step 1: Install OLS ---
 echo "--- Step 1: OLS installation ---"
@@ -82,14 +89,33 @@ else
 fi
 echo ""
 
-# --- Step 5: Deploy payments scenario ---
-echo "--- Step 5: Deploy payments scenario ---"
-echo "[TODO] Deploy payments-api-failure (easy mode) on both clusters"
+# --- Step 5: Deploy payments scenario on both clusters ---
+
+echo "--- Step 5a: Deploy payments app on production ---"
+if KUBECONFIG="$HUB_KUBECONFIG" oc get namespace payments -o name &>/dev/null; then
+    echo "payments namespace already exists on production, skipping."
+else
+    KUBECONFIG="$HUB_KUBECONFIG" make -C "$SCENARIOS_DIR/01-payments-api-failure" deploy-easy
+fi
+echo ""
+
+echo "--- Step 5b: Deploy payments app on staging ---"
+if KUBECONFIG="$SPOKE_KUBECONFIG" oc get namespace payments -o name &>/dev/null; then
+    echo "payments namespace already exists on staging, skipping."
+else
+    KUBECONFIG="$SPOKE_KUBECONFIG" make -C "$SCENARIOS_DIR/01-payments-api-failure" deploy-easy
+fi
 echo ""
 
 # --- Step 6: Break staging ---
-echo "--- Step 6: Break staging ---"
-echo "[TODO] Roll reporting-service to v1.0.2 on staging"
+echo "--- Step 6: Break staging (roll reporting-service to v1.0.2) ---"
+CURRENT_IMAGE=$(KUBECONFIG="$SPOKE_KUBECONFIG" oc -n payments get deployment/reporting-service \
+    -o jsonpath='{.spec.template.spec.containers[0].image}' 2>/dev/null || true)
+if [[ "$CURRENT_IMAGE" == *"v1.0.2"* ]]; then
+    echo "reporting-service already on v1.0.2, skipping."
+else
+    KUBECONFIG="$SPOKE_KUBECONFIG" make -C "$SCENARIOS_DIR/01-payments-api-failure" break
+fi
 echo ""
 
 echo "=== Setup complete ==="
