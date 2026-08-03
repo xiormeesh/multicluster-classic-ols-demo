@@ -7,32 +7,15 @@ set -euo pipefail
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# === Environment-specific config ===
-# Edit these values for your environment.
-#
-# Assumes shiftlet-provisioned clusters:
-#   - Cluster API hostnames (api.*.shiftlet.local) resolve via /etc/hosts on the host
-#   - Hub kubeconfig at /var/lib/shiftlet/<name>/kubeconfig
-#   - Spoke kubeconfig copied to the hub host manually
-#
-# OPENAI_API_KEY must be set in your shell env (used by manifests/ols/install.sh).
+# === Environment config ===
+ENV_FILE="$DIR/.env"
+if [[ ! -f "$ENV_FILE" ]]; then
+    echo "Error: $ENV_FILE not found. Copy .env.example to .env and edit for your environment."
+    exit 1
+fi
+source "$ENV_FILE"
 
-# Hub cluster
-HUB_HOSTNAME="api.hub.shiftlet.local"
-HUB_IP="192.168.1.80"
-HUB_KUBECONFIG="/var/lib/shiftlet/hub/kubeconfig"
-
-# Spoke cluster
-SPOKE_HOSTNAME="api.spoke.shiftlet.local"
-SPOKE_IP="192.168.1.82"
-SPOKE_KUBECONFIG="$HOME/spoke-kubeconfig"
-
-# Demo scenarios (copied from rhobs/troubleshooting-scenarios, PVC replaced with emptyDir)
 SCENARIOS_DIR="$DIR/scenarios"
-
-# hostAliases for the MCP server pod (needed when cluster API hostnames
-# are not in DNS, e.g. local libvirt clusters).
-export HOST_ALIASES="[{\"ip\":\"${HUB_IP}\",\"hostnames\":[\"${HUB_HOSTNAME}\"]},{\"ip\":\"${SPOKE_IP}\",\"hostnames\":[\"${SPOKE_HOSTNAME}\"]}]"
 
 echo "=== Multicluster Classic OLS Demo Setup ==="
 echo ""

@@ -7,10 +7,13 @@ set -euo pipefail
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# === Environment-specific config (must match setup.sh) ===
-
-HUB_KUBECONFIG="/var/lib/shiftlet/hub/kubeconfig"
-SPOKE_KUBECONFIG="$HOME/spoke-kubeconfig"
+# === Environment config ===
+ENV_FILE="$DIR/.env"
+if [[ ! -f "$ENV_FILE" ]]; then
+    echo "Error: $ENV_FILE not found. Copy .env.example to .env and edit for your environment."
+    exit 1
+fi
+source "$ENV_FILE"
 
 echo "=== Multicluster Classic OLS Demo Teardown ==="
 echo ""

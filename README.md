@@ -18,9 +18,10 @@ Multicluster troubleshooting with OpenShift Lightspeed (classic, user-initiated 
 
 ## Quick start
 
-Edit the environment config at the top of `setup.sh` for your cluster hostnames, IPs, and kubeconfig paths, then:
+Copy `.env.example` to `.env` and edit for your cluster hostnames, IPs, and kubeconfig paths (defaults work for shiftlet), then:
 
 ```bash
+cp .env.example .env   # edit if not using shiftlet defaults
 export OPENAI_API_KEY=sk-...
 ./setup.sh
 ```
@@ -41,7 +42,8 @@ The script is idempotent — it detects already-completed steps and skips them.
 ## Repo structure
 
 ```
-├── setup.sh                      # End-to-end setup, edit env config at top
+├── .env.example                  # Environment config template (cp to .env)
+├── setup.sh                      # End-to-end setup (reads .env)
 ├── teardown.sh                   # Reverse of setup (keeps OLS installed)
 ├── ols-hub.sh                    # Register/deregister clusters
 ├── manifests/
@@ -90,20 +92,7 @@ oc rollout restart deployment/openshift-mcp-server -n openshift-lightspeed
 
 ## Architecture
 
-```
-Hub cluster (production)
-├── OLS (lightspeed-app-server)
-│   └── Connects to external MCP server via mcpServers config
-├── Standalone openshift-mcp-server
-│   ├── kubeconfig provider: reads merged kubeconfig from Secret
-│   ├── Tools get a "context" parameter (hub, spoke, etc.)
-│   └── LLM picks the right cluster per query
-└── mcp-kubeconfig Secret
-    └── Merged kubeconfig with per-cluster read-only SA tokens
-
-Spoke cluster (staging)
-└── No OLS workloads — hub reaches it via kube-API
-```
+![Multicluster OLS architecture](docs/architecture.svg)
 
 ## Limitations
 

@@ -1,15 +1,19 @@
 #!/bin/bash
 # Deploy standalone openshift-mcp-server with kubeconfig provider.
-#
-# Optional env vars:
-#   HOST_ALIASES  - JSON array of hostAliases for cluster API hostnames not in DNS.
-#                   Example: '[{"ip":"192.168.1.80","hostnames":["api.hub.local"]},{"ip":"192.168.1.82","hostnames":["api.spoke.local"]}]'
-#                   If not set, the deployment uses an empty hostAliases (assumes DNS works).
+# Reads cluster IPs/hostnames from .env to patch hostAliases for DNS resolution.
 #
 # Idempotent — skips steps that are already done.
 set -euo pipefail
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$DIR/../.."
+
+ENV_FILE="$REPO_ROOT/.env"
+if [[ ! -f "$ENV_FILE" ]]; then
+    echo "Error: $ENV_FILE not found. Copy .env.example to .env and edit for your environment."
+    exit 1
+fi
+source "$ENV_FILE"
 
 # Check if already deployed
 if oc get deployment openshift-mcp-server -n openshift-lightspeed -o name &>/dev/null; then
@@ -32,7 +36,8 @@ fi
 echo "Applying MCP server Deployment..."
 oc apply -f "$DIR/01-deployment.yaml"
 
-if [[ -n "${HOST_ALIASES:-}" ]]; then
+if [[ -n "${HUB_IP:-}" && -n "${HUB_HOSTNAME:-}" && -n "${SPOKE_IP:-}" && -n "${SPOKE_HOSTNAME:-}" ]]; then
+    HOST_ALIASES="[{\"ip\":\"${HUB_IP}\",\"hostnames\":[\"${HUB_HOSTNAME}\"]},{\"ip\":\"${SPOKE_IP}\",\"hostnames\":[\"${SPOKE_HOSTNAME}\"]}]"
     echo "Patching hostAliases for DNS resolution..."
     oc patch deployment openshift-mcp-server -n openshift-lightspeed --type=json \
         -p "[{\"op\":\"replace\",\"path\":\"/spec/template/spec/hostAliases\",\"value\":${HOST_ALIASES}}]"

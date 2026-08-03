@@ -1,0 +1,152 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1060 880" width="1060" height="880">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 7" refX="10" refY="3.5"
+            markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,3.5 L0,7 z" fill="#666"/>
+    </marker>
+    <marker id="arrow-blue" viewBox="0 0 10 7" refX="10" refY="3.5"
+            markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,3.5 L0,7 z" fill="#2a78d6"/>
+    </marker>
+    <marker id="arrow-amber" viewBox="0 0 10 7" refX="10" refY="3.5"
+            markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,3.5 L0,7 z" fill="#d97706"/>
+    </marker>
+    <marker id="arrow-green" viewBox="0 0 10 7" refX="10" refY="3.5"
+            markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,3.5 L0,7 z" fill="#16a34a"/>
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="530" y="34" text-anchor="middle" font-size="20" font-weight="600" fill="#1a1a1a">Multicluster Classic OLS</text>
+  <text x="530" y="54" text-anchor="middle" font-size="13" fill="#777">Standalone MCP server with kubeconfig provider — zero spoke footprint</text>
+
+  <!-- ═══════════ Hub Cluster ═══════════ -->
+  <rect x="30" y="74" width="500" height="570" rx="12" fill="#e8f0fe" stroke="#2a78d6" stroke-width="2"/>
+  <text x="50" y="100" font-size="15" font-weight="700" fill="#1a5fb4">Hub Cluster</text>
+
+  <!-- OLS (compact) -->
+  <rect x="60" y="120" width="190" height="48" rx="8" fill="#fff" stroke="#bbb" stroke-width="1.5"/>
+  <text x="155" y="143" text-anchor="middle" font-size="13" font-weight="600" fill="#333">OLS</text>
+  <text x="155" y="158" text-anchor="middle" font-size="10" fill="#888">lightspeed-app-server</text>
+
+  <!-- MCP Server -->
+  <rect x="60" y="220" width="190" height="64" rx="8" fill="#fff" stroke="#2a78d6" stroke-width="2"/>
+  <text x="155" y="246" text-anchor="middle" font-size="14" font-weight="700" fill="#1a5fb4">MCP Server</text>
+  <text x="155" y="264" text-anchor="middle" font-size="11" fill="#555">openshift-mcp-server</text>
+  <text x="155" y="278" text-anchor="middle" font-size="10" fill="#888">kubeconfig provider mode</text>
+
+  <!-- Arrow: OLS → MCP Server -->
+  <line x1="155" y1="168" x2="155" y2="216" stroke="#2a78d6" stroke-width="1.5" marker-end="url(#arrow-blue)"/>
+  <text x="163" y="196" font-size="10" fill="#2a78d6">MCP tools</text>
+
+  <!-- context_list tool annotation -->
+  <rect x="270" y="222" width="240" height="60" rx="6" fill="#fff" stroke="#2a78d6" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="390" y="240" text-anchor="middle" font-size="11" font-weight="600" fill="#1a5fb4">configuration_contexts_list</text>
+  <text x="390" y="256" text-anchor="middle" font-size="10" fill="#555">config toolset, auto-generated.</text>
+  <text x="390" y="270" text-anchor="middle" font-size="10" fill="#555">Returns ["hub", "spoke1"]</text>
+  <text x="280" y="252" font-size="10" fill="#2a78d6">→</text>
+
+  <!-- tool context param annotation -->
+  <rect x="270" y="296" width="240" height="46" rx="6" fill="#fff" stroke="#2a78d6" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="390" y="314" text-anchor="middle" font-size="11" font-weight="600" fill="#1a5fb4">Every tool gets context= param</text>
+  <text x="390" y="330" text-anchor="middle" font-size="10" fill="#555">Injected by tool_mutator.go</text>
+
+  <!-- ConfigMap: mcp-config -->
+  <rect x="270" y="360" width="240" height="90" rx="8" fill="#f3e8ff" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="290" y="382" font-size="12" font-weight="600" fill="#5b21b6">ConfigMap: mcp-config</text>
+  <text x="290" y="400" font-size="10" fill="#555" font-family="monospace">toolsets = ["core", "config"]</text>
+  <text x="290" y="414" font-size="10" fill="#555" font-family="monospace">cluster_provider_strategy = "kubeconfig"</text>
+  <text x="290" y="428" font-size="10" fill="#555" font-family="monospace">kubeconfig = "/etc/mcp/kubeconfig"</text>
+  <text x="290" y="442" font-size="10" fill="#555" font-family="monospace">read_only = true</text>
+
+  <!-- Arrow: MCP Server → ConfigMap -->
+  <path d="M 250 268 L 266 268 L 266 400 L 266 400" fill="none" stroke="#7c3aed" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="230" y="340" font-size="10" fill="#7c3aed" transform="rotate(90, 230, 340)">config</text>
+
+  <!-- Kubeconfig Secret -->
+  <rect x="60" y="470" width="450" height="84" rx="8" fill="#fff3e0" stroke="#e69100" stroke-width="1.5"/>
+  <text x="80" y="494" font-size="13" font-weight="600" fill="#a36800">Secret: mcp-kubeconfig</text>
+  <text x="80" y="512" font-size="11" fill="#666">Merged kubeconfig with per-cluster read-only SA tokens</text>
+
+  <!-- Context boxes inside secret -->
+  <rect x="80" y="520" width="180" height="24" rx="4" fill="#dbeafe" stroke="#2a78d6" stroke-width="1"/>
+  <text x="170" y="537" text-anchor="middle" font-size="11" font-weight="600" fill="#1a5fb4">context: hub</text>
+  <rect x="280" y="520" width="180" height="24" rx="4" fill="#fef3c7" stroke="#d97706" stroke-width="1"/>
+  <text x="370" y="537" text-anchor="middle" font-size="11" font-weight="600" fill="#92400e">context: spoke1</text>
+
+  <!-- Arrow: MCP Server → Secret (reads) -->
+  <line x1="155" y1="284" x2="155" y2="466" stroke="#e69100" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="163" y="386" font-size="10" fill="#a36800">reads kubeconfig</text>
+  <text x="163" y="398" font-size="10" fill="#a36800">selects context</text>
+
+  <!-- ols-hub.sh annotation -->
+  <rect x="60" y="576" width="450" height="52" rx="6" fill="#f0fdf4" stroke="#16a34a" stroke-width="1.5"/>
+  <text x="80" y="598" font-size="12" font-weight="600" fill="#15803d">ols-hub.sh register cluster --name spoke1 --kubeconfig ~/spoke-kubeconfig</text>
+  <text x="80" y="616" font-size="10" fill="#666">Creates read-only SA (view ClusterRole) on target → merges token into Secret → restart MCP pod</text>
+
+  <!-- ═══════════ Spoke Cluster ═══════════ -->
+  <rect x="610" y="250" width="420" height="200" rx="12" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+  <text x="630" y="276" font-size="15" font-weight="700" fill="#92400e">Spoke Cluster</text>
+  <text x="630" y="292" font-size="11" fill="#777">e.g. api.spoke.shiftlet.local:6443</text>
+
+  <!-- Spoke kube-API -->
+  <rect x="640" y="310" width="140" height="42" rx="8" fill="#fff" stroke="#d97706" stroke-width="1.5"/>
+  <text x="710" y="331" text-anchor="middle" font-size="13" font-weight="600" fill="#92400e">kube-API</text>
+  <text x="710" y="345" text-anchor="middle" font-size="10" fill="#888">:6443</text>
+
+  <!-- SA on spoke -->
+  <rect x="640" y="368" width="360" height="36" rx="8" fill="#fff" stroke="#d97706" stroke-width="1.5"/>
+  <text x="820" y="386" text-anchor="middle" font-size="11" font-weight="600" fill="#92400e">ServiceAccount: ols-multicluster-viewer</text>
+  <text x="820" y="398" text-anchor="middle" font-size="10" fill="#888">ClusterRoleBinding → view (read-only, all namespaces)</text>
+
+  <!-- No OLS label -->
+  <rect x="640" y="418" width="360" height="22" rx="4" fill="#fef9c3"/>
+  <text x="820" y="434" text-anchor="middle" font-size="11" font-style="italic" fill="#92400e">No OLS components on spoke — hub reaches it via kube-API</text>
+
+  <!-- Arrow: MCP Server → Spoke kube-API -->
+  <path d="M 250 256 L 560 256 L 560 331 L 636 331" fill="none" stroke="#d97706" stroke-width="2" marker-end="url(#arrow-amber)"/>
+  <text x="460" y="248" font-size="11" font-weight="600" fill="#d97706">context=spoke1</text>
+
+  <!-- Arrow: ols-hub.sh → Spoke (registration) -->
+  <path d="M 510 598 L 560 598 L 560 386 L 636 386" fill="none" stroke="#16a34a" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#arrow-green)"/>
+  <text x="566" y="500" font-size="10" fill="#16a34a" transform="rotate(-90, 566, 500)">registration</text>
+
+  <!-- ═══════════ Hub kube-API (self) ═══════════ -->
+  <rect x="610" y="100" width="420" height="110" rx="12" fill="#e8f0fe" stroke="#2a78d6" stroke-width="1.5" stroke-dasharray="6,3"/>
+  <text x="630" y="126" font-size="13" font-weight="600" fill="#1a5fb4">Hub kube-API (same cluster)</text>
+  <text x="630" y="142" font-size="11" fill="#777">e.g. api.hub.shiftlet.local:6443</text>
+
+  <rect x="640" y="156" width="360" height="36" rx="8" fill="#fff" stroke="#2a78d6" stroke-width="1"/>
+  <text x="820" y="174" text-anchor="middle" font-size="11" font-weight="600" fill="#1a5fb4">ServiceAccount: ols-multicluster-viewer</text>
+  <text x="820" y="186" text-anchor="middle" font-size="10" fill="#888">Same setup as spoke — registered via ols-hub.sh</text>
+
+  <!-- Arrow: MCP Server → Hub kube-API -->
+  <path d="M 250 240 L 560 240 L 560 174 L 636 174" fill="none" stroke="#2a78d6" stroke-width="2" marker-end="url(#arrow-blue)"/>
+  <text x="440" y="232" font-size="11" font-weight="600" fill="#2a78d6">context=hub</text>
+
+  <!-- ═══════════ Legend ═══════════ -->
+  <line x1="610" y1="484" x2="640" y2="484" stroke="#2a78d6" stroke-width="2.5"/>
+  <text x="648" y="488" font-size="11" fill="#1a5fb4">Query answered on hub</text>
+  <line x1="610" y1="504" x2="640" y2="504" stroke="#d97706" stroke-width="2.5"/>
+  <text x="648" y="508" font-size="11" fill="#92400e">Query answered on spoke</text>
+  <line x1="610" y1="524" x2="640" y2="524" stroke="#16a34a" stroke-width="1.5" stroke-dasharray="6,3"/>
+  <text x="648" y="528" font-size="11" fill="#15803d">Cluster registration (one-time setup)</text>
+
+  <!-- ═══════════ How it works ═══════════ -->
+  <text x="50" y="680" font-size="14" font-weight="600" fill="#333">How it works</text>
+  <text x="50" y="700" font-size="12" fill="#555">1. LLM calls configuration_contexts_list (config toolset) → gets available cluster names</text>
+  <text x="50" y="718" font-size="12" fill="#555">2. LLM calls tools (pods_list, logs_get, …) with context=hub or context=spoke1</text>
+  <text x="50" y="736" font-size="12" fill="#555">3. MCP server looks up the context in the merged kubeconfig Secret</text>
+  <text x="50" y="754" font-size="12" fill="#555">4. Authenticates to the target kube-API using that context's SA token</text>
+  <text x="50" y="772" font-size="12" fill="#555">5. Returns results to LLM → user sees data from the right cluster</text>
+
+  <!-- ═══════════ Secret contents sample ═══════════ -->
+  <rect x="50" y="794" width="960" height="78" rx="6" fill="#2b2b2b"/>
+  <text x="60" y="812" font-size="10" font-weight="600" fill="#a3e635" font-family="monospace">$ oc get secret mcp-kubeconfig -o jsonpath='{.data.kubeconfig}' | base64 -d</text>
+  <text x="60" y="826" font-size="10" fill="#d4d4d4" font-family="monospace">apiVersion: v1</text>
+  <text x="60" y="838" font-size="10" fill="#d4d4d4" font-family="monospace">clusters:</text>
+  <text x="60" y="850" font-size="10" fill="#d4d4d4" font-family="monospace">- {name: hub, cluster: {server: "https://api.hub.shiftlet.local:6443", certificate-authority-data: LS0t…}}</text>
+  <text x="60" y="862" font-size="10" fill="#d4d4d4" font-family="monospace">- {name: spoke1, cluster: {server: "https://api.spoke.shiftlet.local:6443", certificate-authority-data: LS0t…}}</text>
+</svg>
