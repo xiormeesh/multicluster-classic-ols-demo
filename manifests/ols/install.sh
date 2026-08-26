@@ -41,4 +41,13 @@ echo "Waiting for app-server pod to be ready (up to 5 minutes)..."
 oc wait --for=condition=Available deployment/lightspeed-app-server \
     -n openshift-lightspeed --timeout=300s 2>/dev/null || true
 
-echo "Done. Verify: oc get pods -n openshift-lightspeed"
+if oc get route lightspeed-app-server -n openshift-lightspeed -o name &>/dev/null; then
+    echo "Route already exists, skipping."
+else
+    echo "Creating Route for lightspeed-app-server..."
+    oc apply -f "$DIR/05-route.yaml"
+fi
+
+OLS_HOST=$(oc get route lightspeed-app-server -n openshift-lightspeed -o jsonpath='{.spec.host}')
+echo "Done. OLS endpoint: https://${OLS_HOST}"
+echo "Verify: oc get pods -n openshift-lightspeed"
