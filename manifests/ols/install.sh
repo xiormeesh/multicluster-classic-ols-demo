@@ -1,10 +1,10 @@
 #!/bin/bash
-# Install classic OLS with multicluster MCP configuration.
+# Install OLS operator with default recommended configuration.
 # Usage: OPENAI_API_KEY=sk-... ./install.sh
 #
 # Idempotent — skips steps that are already done.
-# Install OLS from the UI instead if you prefer; just make sure the OLSConfig
-# matches 04-olsconfig.yaml (introspectionEnabled: false, mcpServers configured).
+# This gives you a working OLS with built-in introspection (MCP sidecar).
+# To use an external MCP server instead, run mcp-server/install.sh after this.
 set -euo pipefail
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

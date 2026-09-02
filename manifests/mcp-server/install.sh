@@ -46,4 +46,22 @@ fi
 echo "Waiting for MCP server pod to be ready (up to 2 minutes)..."
 oc rollout status deployment/openshift-mcp-server -n openshift-lightspeed --timeout=120s
 
+echo "Patching OLSConfig to disable built-in introspection and register external MCP server..."
+oc patch olsconfig cluster --type=merge -p '{
+  "spec": {
+    "ols": {
+      "introspectionEnabled": false
+    },
+    "featureGates": ["MCPServer"],
+    "mcpServers": [{
+      "name": "multicluster-mcp",
+      "url": "http://openshift-mcp-server.openshift-lightspeed.svc:8080/mcp",
+      "timeout": 120
+    }]
+  }
+}'
+
+echo "Waiting for app-server rollout after config change (up to 5 minutes)..."
+oc rollout status deployment/lightspeed-app-server -n openshift-lightspeed --timeout=300s
+
 echo "Done. Verify: oc get pods -n openshift-lightspeed -l app=openshift-mcp-server"

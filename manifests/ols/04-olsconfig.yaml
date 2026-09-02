@@ -16,12 +16,3 @@ spec:
     defaultModel: gpt-5.4-mini
     defaultProvider: openai
     logLevel: INFO
-    # Disable the built-in MCP sidecar — we use a standalone MCP server
-    # with kubeconfig provider for multicluster support.
-    introspectionEnabled: false
-  featureGates:
-    - MCPServer
-  mcpServers:
-    - name: multicluster-mcp
-      url: http://openshift-mcp-server.openshift-lightspeed.svc:8080/mcp
-      timeout: 120
