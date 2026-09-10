@@ -64,9 +64,9 @@ for i in $(seq 1 36); do
     sleep 5
 done
 
-echo "Waiting for app-server to be ready (up to 5 minutes)..."
+echo "Waiting for app-server to be ready (up to 15 minutes)..."
 oc wait --for=condition=Available deployment/lightspeed-app-server \
-    -n openshift-lightspeed --timeout=300s
+    -n openshift-lightspeed --timeout=900s
 
 if oc get route lightspeed-app-server -n openshift-lightspeed -o name &>/dev/null; then
     echo "Route already exists, skipping."
