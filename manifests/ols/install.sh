@@ -1,6 +1,6 @@
 #!/bin/bash
 # Install OLS operator with default recommended configuration.
-# Usage: OPENAI_API_KEY=sk-... ./install.sh
+# Usage: ONLY_OLS_OPENAI_API_KEY=sk-... ./install.sh
 #
 # Idempotent — skips steps that are already done.
 # This gives you a working OLS with built-in introspection (MCP sidecar).
@@ -17,7 +17,7 @@ if oc get olsconfig cluster -o name &>/dev/null && \
     exit 0
 fi
 
-: "${OPENAI_API_KEY:?OPENAI_API_KEY must be set}"
+: "${ONLY_OLS_OPENAI_API_KEY:?ONLY_OLS_OPENAI_API_KEY must be set}"
 
 echo "Applying namespace, operatorgroup, subscription..."
 oc apply -f "$DIR/00-namespace.yaml" -f "$DIR/01-operatorgroup.yaml" -f "$DIR/02-subscription.yaml"
@@ -45,7 +45,7 @@ if oc get secret credentials -n openshift-lightspeed -o name &>/dev/null; then
     echo "Credentials secret already exists, skipping."
 else
     echo "Creating LLM credentials secret..."
-    sed "s|OPENAI_API_KEY|${OPENAI_API_KEY}|g" "$DIR/03-credentials-secret.yaml.template" \
+    sed "s|__OLS_API_TOKEN__|${ONLY_OLS_OPENAI_API_KEY}|g" "$DIR/03-credentials-secret.yaml.template" \
         | oc apply -f -
 fi
 
@@ -64,9 +64,9 @@ for i in $(seq 1 36); do
     sleep 5
 done
 
-echo "Waiting for app-server to be ready (up to 5 minutes)..."
+echo "Waiting for app-server to be ready (up to 15 minutes)..."
 oc wait --for=condition=Available deployment/lightspeed-app-server \
-    -n openshift-lightspeed --timeout=300s
+    -n openshift-lightspeed --timeout=900s
 
 if oc get route lightspeed-app-server -n openshift-lightspeed -o name &>/dev/null; then
     echo "Route already exists, skipping."

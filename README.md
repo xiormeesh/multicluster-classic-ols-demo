@@ -8,7 +8,7 @@ Multicluster troubleshooting with OpenShift Lightspeed (classic, user-initiated 
 
 - Two OpenShift 4.22+ clusters (tested with [shiftlet](https://github.com/kgordeev/shiftlet)-provisioned SNO clusters)
 - `oc` CLI logged into the hub cluster
-- `OPENAI_API_KEY` set in your shell environment
+- `ONLY_OLS_OPENAI_API_KEY` set in your shell environment
 - Spoke cluster's kubeconfig copied to the hub host
 - A default StorageClass on both clusters (the payments scenario uses a PVC). For shiftlet SNOs:
   ```bash
@@ -22,11 +22,22 @@ Copy `.env.example` to `.env` and edit for your cluster hostnames, IPs, and kube
 
 ```bash
 cp .env.example .env   # edit if not using shiftlet defaults
-export OPENAI_API_KEY=sk-...
+export ONLY_OLS_OPENAI_API_KEY=sk-...
 ./setup.sh
 ```
 
 The script is idempotent — it detects already-completed steps and skips them.
+
+## Check available models
+
+With `ONLY_OLS_OPENAI_API_KEY` exported, list model IDs available to the API key or check a specific model:
+
+```bash
+python3 manifests/ols/check-models.py
+python3 manifests/ols/check-models.py gpt-5.6-luna
+```
+
+This calls `GET /v1/models` and does not make an inference request
 
 ## What `setup.sh` does
 
@@ -51,8 +62,9 @@ The script is idempotent — it detects already-completed steps and skips them.
 │   │   ├── 00-namespace.yaml
 │   │   ├── 01-operatorgroup.yaml
 │   │   ├── 02-subscription.yaml
-│   │   ├── 03-credentials-secret.yaml.template  # LLM API key (OPENAI_API_KEY substituted)
+│   │   ├── 03-credentials-secret.yaml.template  # LLM API key (ONLY_OLS_OPENAI_API_KEY substituted)
 │   │   ├── 04-olsconfig.yaml    # Includes mcpServers + introspectionEnabled: false
+│   │   ├── check-models.py      # Lists or checks models available to the API key
 │   │   └── install.sh
 │   ├── mcp-server/               # Standalone openshift-mcp-server
 │   │   ├── 00-config.yaml        # ConfigMap: kubeconfig provider, core+config toolsets

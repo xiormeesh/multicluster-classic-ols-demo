@@ -2,7 +2,7 @@
 # End-to-end setup for the multicluster classic OLS demo.
 # Idempotent — detects already-completed steps and skips them.
 #
-# Usage: OPENAI_API_KEY=sk-... ./setup.sh
+# Usage: ONLY_OLS_OPENAI_API_KEY=sk-... ./setup.sh
 set -euo pipefail
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

@@ -11,8 +11,11 @@ spec:
           name: credentials
         url: https://api.openai.com/v1
         models:
-          - name: gpt-5.4-mini
+          - name: gpt-5.6-luna
+            parameters:
+              reasoningConfig:
+                effort: high
   ols:
-    defaultModel: gpt-5.4-mini
+    defaultModel: gpt-5.6-luna
     defaultProvider: openai
     logLevel: DEBUG
